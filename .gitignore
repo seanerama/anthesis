@@ -2,6 +2,7 @@ node_modules/
 dist/
 dist-test/
 dist-viewer/
+artifacts/
 viewer/public/
 test/fixtures/repository/
 *.tgz

@@ -10,12 +10,13 @@
     "lint": "npm run typecheck",
     "test": "npm run build && tsc -p tsconfig.test.json && node --test dist-test/test/**/*.test.js",
     "fixture": "bash test/fixtures/create-repository.sh test/fixtures/repository",
-    "generate:viewer": "npm run build && npm run fixture && node dist/cli/index.js portrait test/fixtures/repository --output viewer/public/portrait.svg",
+    "generate:viewer": "npm run build && npm run fixture && node dist/cli/index.js portrait test/fixtures/repository --output viewer/public/portrait.svg --mvp-grammar",
     "build:viewer": "npm run generate:viewer && vite build viewer",
     "smoke:viewer": "node scripts/smoke-viewer.mjs",
     "smoke:viewer:enabled": "ANTHESIS_VIEWER_ENABLED=true npm run build:viewer && ANTHESIS_EXPECT_VIEWER_ENABLED=true node scripts/smoke-viewer.mjs",
     "smoke:viewer:disabled": "npm run build:viewer && ANTHESIS_EXPECT_VIEWER_ENABLED=false node scripts/smoke-viewer.mjs",
-    "smoke:analyze": "npm run build && node scripts/smoke-analyze.mjs"
+    "smoke:analyze": "npm run build && node scripts/smoke-analyze.mjs",
+    "generate:review-artifacts": "npm run build && node scripts/generate-review-artifacts.mjs"
   },
   "engines": { "node": "22.x", "npm": "10.x" },
   "dependencies": { "commander": "13.1.0", "zod": "3.24.2" },

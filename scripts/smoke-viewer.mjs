@@ -42,6 +42,8 @@ try {
     if (await image.evaluate((element) => !(element instanceof HTMLImageElement) || element.naturalWidth === 0)) throw new Error("portrait image did not visibly render");
     const provenance = await page.locator("#provenance").textContent();
     if (!provenance || !/^[0-9a-f]{64}$/.test(provenance)) throw new Error("visible provenance identifier missing");
+    await page.locator('#legend button[data-kind="stem"]').click();
+    if (!/^stem: commit /.test(await page.locator("#inspection-value").textContent() ?? "")) throw new Error("source/metric inspection did not respond");
   } else {
     await disabled.waitFor({ state: "visible" });
     if (await portrait.isVisible()) throw new Error("portrait is visible while kill switch defaults OFF");
