@@ -1,5 +1,9 @@
 node_modules/
 dist/
+dist-test/
+dist-viewer/
+viewer/public/
+test/fixtures/repository/
 *.tgz
 .DS_Store
 .env

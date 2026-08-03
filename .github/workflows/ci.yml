@@ -34,3 +34,20 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build-test-viewer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - name: Build production viewer with the deployment feature flag
+        run: ANTHESIS_VIEWER_ENABLED=true npm run build:viewer
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tested-anthesis-viewer
+          path: dist-viewer/
