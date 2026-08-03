@@ -43,10 +43,13 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npx playwright install --with-deps chromium
       - run: npm run lint
       - run: npm test
-      - name: Build production viewer with the deployment feature flag
-        run: ANTHESIS_VIEWER_ENABLED=true npm run build:viewer
+      - name: Prove viewer defaults off
+        run: npm run smoke:viewer:disabled
+      - name: Build and execute enabled production viewer
+        run: npm run smoke:viewer:enabled
       - uses: actions/upload-artifact@v4
         with:
           name: tested-anthesis-viewer

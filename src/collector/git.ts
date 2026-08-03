@@ -26,7 +26,7 @@ export async function collectRepository(input: string): Promise<CanonicalReposit
     let additions = 0, deletions = 0, filesChanged = 0, testChanges = 0, documentationChanges = 0;
     for (const line of lines) { const [a, d, file] = line.split("\t"); if (!file) continue; additions += a === "-" ? 0 : Number(a); deletions += d === "-" ? 0 : Number(d); filesChanged++; if (/(^|\/)(test|tests)\//.test(file)) testChanges++; if (/(^|\/)(docs?\/|README)/i.test(file)) documentationChanges++; }
     return { sha: commitSha, parentShas: parents ? parents.split(" ") : [], authorId, authoredAt: iso(seconds), additions, deletions, filesChanged, testChanges, documentationChanges, excludedChanges: 0, isMerge: parents.split(" ").filter(Boolean).length > 1, isRevert: /^revert/i.test(subject) };
-  });
+  }).sort((a, b) => a.authoredAt.localeCompare(b.authoredAt) || a.sha.localeCompare(b.sha));
   if (!commits.length) throw new Error(`Git repository has no commits: ${repo}`);
   const tagsRaw = await git(repo, ["for-each-ref", "--sort=creatordate", "--format=%(refname:short)%00%(*objectname)%00%(objectname)%00%(creatordate:unix)", "refs/tags"]);
   const tags = tagsRaw ? tagsRaw.split("\n").map((line) => { const [name = "", peeled = "", object = "", seconds = ""] = line.split("\0"); return { name, targetSha: peeled || object, occurredAt: iso(seconds) }; }).sort((a,b) => a.occurredAt.localeCompare(b.occurredAt) || a.name.localeCompare(b.name)) : [];
