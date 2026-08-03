@@ -1,3 +1,5 @@
-import type {Point} from "./model.js";
-/** Fixed-pass local nudge used only for minor organs. */
-export function repairPoint(p:Point,index:number):Point{return{x:p.x+(index%2?1:-1)*Math.min(6,index),y:p.y};}
+import type {Bounds} from "./model.js";
+export type MinorOrganPlacement={arcOffset:number;angleOffset:number;scale:number};
+const overlap=(a:Bounds,b:Bounds)=>Math.max(0,Math.min(a.maxX,b.maxX)-Math.max(a.minX,b.minX))*Math.max(0,Math.min(a.maxY,b.maxY)-Math.max(a.minY,b.minY));
+/** Six deterministic greedy passes; only the later minor organ moves, and only to a lower-overlap option. */
+export function repairMinorOrgans(ids:string[],initial:Map<string,MinorOrganPlacement>,bounds:(id:string,p:MinorOrganPlacement)=>Bounds):Map<string,MinorOrganPlacement>{const out=new Map([...initial].map(([id,p])=>[id,{...p}]));for(let pass=0;pass<6;pass++){for(let i=0;i<ids.length;i++){const id=ids[i]!,p=out.get(id)!,step=.025*(pass+1),turn=.12,options=[p,{...p,arcOffset:p.arcOffset+step},{...p,arcOffset:p.arcOffset-step},{...p,angleOffset:p.angleOffset+turn},{...p,angleOffset:p.angleOffset-turn},{...p,arcOffset:p.arcOffset+step,angleOffset:p.angleOffset+turn},{...p,arcOffset:p.arcOffset-step,angleOffset:p.angleOffset-turn}],score=(candidate:MinorOrganPlacement)=>{const b=bounds(id,candidate);let total=0;for(let j=0;j<i;j++)total+=overlap(b,bounds(ids[j]!,out.get(ids[j]!)!));return total;};let best=options[0]!,bestScore=score(best);for(const option of options.slice(1)){const candidateScore=score(option);if(candidateScore<bestScore){best=option;bestScore=candidateScore;}}out.set(id,{...best});}}return out;}
