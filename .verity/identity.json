@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "name": "Anthesis",
+  "slug": "anthesis",
+  "owner": "seanerama",
+  "image_prefix": "ghcr.io/seanerama/anthesis",
+  "locked_at": "2026-08-03T14:14:29.767Z"
+}
