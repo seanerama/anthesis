@@ -1,0 +1,14 @@
+import {z} from "zod";
+import {canonicalJson} from "../../shared/canonical-json.js";
+const finite=z.number().finite(),point=z.object({x:finite,y:finite}).strict(),bounds=z.object({minX:finite,minY:finite,maxX:finite,maxY:finite}).strict().refine(b=>b.minX<=b.maxX&&b.minY<=b.maxY);
+const command=z.discriminatedUnion("op",[z.object({op:z.literal("M"),p:point}).strict(),z.object({op:z.literal("L"),p:point}).strict(),z.object({op:z.literal("C"),c1:point,c2:point,p:point}).strict(),z.object({op:z.literal("Z")}).strict()]);
+const role=z.enum(["stem","root","leaf","leaf-vein","sepal","petal-back","petal-front","receptacle","floret","scar","thorn","texture"]);
+const closed=z.object({kind:z.literal("closed-path"),id:z.string(),featureId:z.string(),role,commands:z.array(command).min(4)}).strict().refine(x=>x.commands[0]?.op==="M"&&x.commands.at(-1)?.op==="Z"&&x.commands.filter(c=>c.op==="C").length>=2,"closed paths require multi-cubic contours");
+const open=z.object({kind:z.literal("open-path"),id:z.string(),featureId:z.string(),role,commands:z.array(command).min(2),widthProfile:z.array(z.object({t:z.number().min(0).max(1),width:z.number().positive()}).strict()).optional()}).strict().refine(x=>x.commands[0]?.op==="M"&&x.commands.at(-1)?.op!=="Z");
+const mark=z.object({position:point,rotation:finite,scale:z.number().positive()}).strict();
+const field=z.object({kind:z.literal("mark-field"),id:z.string(),featureId:z.string(),role,marks:z.array(mark),clipFeatureId:z.string()}).strict();
+export const geometryPrimitiveSchema=z.union([closed,open,field]);
+const composition=z.object({solverVersion:z.string(),candidateCount:z.literal(32),selectedIndex:z.number().int().min(0).max(31),totalScore:z.number().int().nonnegative(),componentScores:z.record(z.number().int().nonnegative()),hardViolations:z.array(z.string()),centerOfGravity:point,occupiedBounds:bounds}).strict();
+export const geometrySceneV2Schema=z.object({schemaVersion:z.literal(2),geometryVersion:z.string(),viewport:z.object({width:z.number().positive(),height:z.number().positive(),safeInset:z.number().nonnegative()}).strict(),layers:z.array(z.object({id:z.string(),zIndex:z.number().int(),primitives:z.array(geometryPrimitiveSchema)}).strict()),featureBounds:z.record(bounds),composition,semanticFingerprint:z.string().regex(/^[0-9a-f]{64}$/),provenance:z.object({botanicalSceneSha256:z.string().regex(/^[0-9a-f]{64}$/),styleIndependent:z.literal(true),quantization:z.number().positive()}).strict()}).strict();
+export type GeometrySceneV2=z.infer<typeof geometrySceneV2Schema>;export type GeometryPrimitive=z.infer<typeof geometryPrimitiveSchema>;export type PathCommand=z.infer<typeof command>;
+export const serializeGeometrySceneV2=(s:GeometrySceneV2)=>`${canonicalJson(geometrySceneV2Schema.parse(s))}\n`;
