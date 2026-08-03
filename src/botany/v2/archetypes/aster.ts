@@ -1,0 +1,1 @@
+export const ASTER_RECIPE={id:"aster-v1" as const,selectedByRule:"archetype-rule-v1:initial-aster-study",traits:{growthHabit:"erect-herb" as const,inflorescence:"capitulum" as const,phyllotaxy:"alternate" as const,rootHabit:"taproot" as const},borrowedTraits:[]};

@@ -17,6 +17,7 @@
     "smoke:viewer:disabled": "npm run build:viewer && ANTHESIS_EXPECT_VIEWER_ENABLED=false node scripts/smoke-viewer.mjs",
     "smoke:analyze": "npm run build && node scripts/smoke-analyze.mjs",
     "smoke:analysis-v2": "npm run build && node scripts/smoke-analysis-v2.mjs",
+    "smoke:botanical-v2": "npm run build && node scripts/smoke-botanical-v2.mjs",
     "generate:review-artifacts": "npm run build && node scripts/generate-review-artifacts.mjs",
     "snapshots:update": "npm run build && node scripts/update-fixture-snapshots.mjs"
   },
