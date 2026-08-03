@@ -58,3 +58,4 @@ jobs:
           path: |
             dist-viewer/
             artifacts/fixture-portraits/portraits/
+            artifacts/real-anthesis/
