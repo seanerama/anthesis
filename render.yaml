@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: anthesis-viewer
+    runtime: static
+    buildCommand: npm ci && ANTHESIS_VIEWER_ENABLED=true npm run build:viewer
+    staticPublishPath: ./dist-viewer
+    envVars:
+      - key: ANTHESIS_VIEWER_ENABLED
+        value: "true"
