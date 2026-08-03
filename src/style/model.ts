@@ -1,0 +1,7 @@
+import {z} from "zod";
+export const paintRoles=["stem","root","leaf","leaf-vein","sepal","petal-back","petal-front","receptacle","floret","scar","thorn","texture"] as const;
+const hex=z.string().regex(/^#[0-9a-f]{6}$/i);
+const paint=z.object({fill:hex.or(z.literal("none")),stroke:hex.or(z.literal("none")),strokeWidth:z.number().min(.1).max(4),opacity:z.number().min(0).max(1),lineCap:z.enum(["round","butt","square"]),lineJoin:z.enum(["round","bevel","miter"])}).strict();
+export const styleTokensV1Schema=z.object({schemaVersion:z.literal(1),id:z.string(),version:z.string(),palette:z.record(hex),paint:z.record(z.enum(paintRoles),paint),texture:z.object({enabled:z.boolean(),density:z.number().min(0).max(1),markOpacity:z.number().min(0).max(1)}).strict(),edge:z.object({outlineScale:z.number().positive()}).strict(),background:z.object({color:hex,margin:z.number().nonnegative()}).strict(),annotation:z.object({family:z.string(),size:z.number().positive(),color:hex,lineHeight:z.number().positive()}).strict(),depth:z.object({shadowEnabled:z.boolean(),offset:z.number().nonnegative(),opacity:z.number().min(0).max(1)}).strict(),print:z.object({widthMm:z.number().positive(),heightMm:z.number().positive(),minimumLineMm:z.number().min(.05)}).strict()}).strict().superRefine((s,c)=>{for(const role of paintRoles)if(!s.paint[role])c.addIssue({code:"custom",message:`unresolved paint role: ${role}`});});
+export type StyleTokensV1=z.infer<typeof styleTokensV1Schema>;
+export const validateStyle=(value:unknown)=>styleTokensV1Schema.parse(value);

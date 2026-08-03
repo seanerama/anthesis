@@ -1,0 +1,3 @@
+# Botanical Plate v2 visual baseline
+
+`botanical-plate-v2.chromium.png` is an element screenshot of the complete annotation-free synthetic six-episode SVG artboard. Pinned Chromium renders the A4 element at 794×1123 CSS pixels; the smoke reads the PNG header, rejects viewport-sized/cropped captures, and verifies that occupied root-to-crown bounds fit inside the captured viewBox. Stage 7 uses a reviewed zero-byte threshold: any raster change requires deliberate baseline review and regeneration with `node scripts/update-svg-v2-baseline.mjs`. Raster output is derivative; SVG remains authoritative.

@@ -1,0 +1,3 @@
+import test from"node:test";import assert from"node:assert/strict";import{botanicalPlateStyle,monochromeStyle}from"../../src/style/botanical-plate.js";import{paintRoles,styleTokensV1Schema}from"../../src/style/model.js";
+test("Botanical Plate and diagnostic styles resolve every semantic paint role",()=>{for(const style of[botanicalPlateStyle,monochromeStyle]){styleTokensV1Schema.parse(style);assert.deepEqual(Object.keys(style.paint).sort(),[...paintRoles].sort());assert.equal(style.depth.shadowEnabled,false);assert.ok(style.print.minimumLineMm>=.05);}});
+test("partial styles fail validation",()=>assert.throws(()=>styleTokensV1Schema.parse({...botanicalPlateStyle,paint:{stem:botanicalPlateStyle.paint.stem}})));

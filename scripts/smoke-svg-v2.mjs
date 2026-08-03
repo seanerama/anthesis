@@ -1,0 +1,26 @@
+import {execFile} from "node:child_process";
+import {mkdtemp,readFile} from "node:fs/promises";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {promisify} from "node:util";
+import {chromium} from "playwright";
+
+const exec=promisify(execFile),dir=await mkdtemp(join(tmpdir(),"anthesis-svg-v2-smoke-"));
+const analysis="test/fixtures/botanical-v2/six-episode-analysis.json",plant=join(dir,"plant.json"),geometry=join(dir,"geometry.json"),portrait=join(dir,"portrait.svg"),contact=join(dir,"contact.svg"),actual=join(dir,"portrait.chromium.png");
+await exec(process.execPath,["dist/cli/index.js","grow",analysis,"--output",plant,"--grammar","botanical-v2"]);
+await exec(process.execPath,["dist/cli/index.js","geometry",plant,"--output",geometry,"--grammar","botanical-v2"]);
+await exec(process.execPath,["dist/cli/index.js","render-v2",plant,"--geometry",geometry,"--analysis",analysis,"--output",portrait,"--grammar","botanical-v2","--contact-sheet",contact]);
+const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:900,height:700}});
+await page.goto(`file://${portrait}`);
+const artboard=page.locator("svg"),contract=await artboard.getAttribute("data-anthesis-contract"),features=await page.locator("g[data-feature-id]").count(),annotation=await page.locator("#annotations").count(),box=await artboard.boundingBox();
+await artboard.screenshot({path:actual});
+await browser.close();
+if(contract!=="svg-provenance-v2"||features<20||annotation!==0||!box)throw new Error("SVG v2 review-artifact smoke failed");
+if(!(await readFile(contact,"utf8")).includes("candidate"))throw new Error("contact sheet missing candidates");
+const baseline=await readFile("test/visual/botanical-plate-v2.chromium.png"),rendered=await readFile(actual);
+if(!baseline.equals(rendered))throw new Error("Pinned Chromium visual regression exceeded reviewed zero-byte threshold");
+const pngWidth=rendered.readUInt32BE(16),pngHeight=rendered.readUInt32BE(20);
+if(pngWidth!==Math.round(box.width)||pngHeight!==Math.round(box.height)||pngHeight<=700)throw new Error(`Visual baseline does not contain full SVG artboard: ${pngWidth}x${pngHeight}`);
+const g=JSON.parse(await readFile(geometry,"utf8")),b=g.composition.occupiedBounds,v=g.viewport;
+if(b.minX<v.safeInset||b.minY<v.safeInset||b.maxX>v.width-v.safeInset||b.maxY>v.height-v.safeInset)throw new Error("Occupied root/crown bounds do not fit the captured authoritative artboard");
+process.stdout.write(`svg-v2 smoke: ${features} inspectable features, full ${pngWidth}x${pngHeight} artboard, visual baseline exact\n`);
