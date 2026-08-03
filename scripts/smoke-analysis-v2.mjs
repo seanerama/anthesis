@@ -1,0 +1,11 @@
+import { execFile } from "node:child_process";
+import { mkdtemp, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
+const exec=promisify(execFile),root=await mkdtemp(join(tmpdir(),"anthesis-analysis-v2-smoke-")),repo=join(root,"fixture"),output=join(root,"repository-analysis-v2.json");
+await exec("bash",["test/fixtures/create-repository.sh",repo]);
+await exec(process.execPath,["dist/cli/index.js","analyze",repo,"--output",output,"--grammar","botanical-v2"]);
+const artifact=JSON.parse(await readFile(output,"utf8"));
+if(artifact.schemaVersion!==2||!artifact.episodes?.length||artifact.phenotype?.noOverallScore!==true)throw new Error("Botanical v2 analysis smoke failed");
+process.stdout.write(`Botanical v2 analysis observable at ${output} (${artifact.episodes.length} episode(s))\n`);
