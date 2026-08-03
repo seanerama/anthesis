@@ -19,6 +19,8 @@
     "smoke:analysis-v2": "npm run build && node scripts/smoke-analysis-v2.mjs",
     "smoke:botanical-v2": "npm run build && node scripts/smoke-botanical-v2.mjs",
     "smoke:geometry-v2": "npm run build && node scripts/smoke-geometry-v2.mjs",
+    "smoke:svg-v2": "npm run build && node scripts/smoke-svg-v2.mjs",
+    "baseline:svg-v2:update": "npm run build && node scripts/update-svg-v2-baseline.mjs",
     "generate:review-artifacts": "npm run build && node scripts/generate-review-artifacts.mjs",
     "snapshots:update": "npm run build && node scripts/update-fixture-snapshots.mjs"
   },
