@@ -1,0 +1,15 @@
+import type {BotanicalSceneV2} from "../../botany/v2/model.js";
+import type {MinorOrganPlacement} from "../../composition/repair.js";
+import type {AxisCurve} from "./axes.js";
+import {at} from "./axes.js";
+import {add,boundsOf,mul,norm,point} from "./bezier.js";
+import type {GeometryPrimitive,PathCommand} from "./model.js";
+
+const DEFAULT_PLACEMENT:MinorOrganPlacement={arcOffset:0,angleOffset:0,scale:1};
+export function leafGeometry(leaf:BotanicalSceneV2["plant"]["leaves"][number],axes:Map<string,AxisCurve>,placement:MinorOrganPlacement=DEFAULT_PLACEMENT):{primitives:GeometryPrimitive[];bounds:ReturnType<typeof boundsOf>}{
+ const axis=axes.get(leaf.attachment.parentAxisId)!,arc=Math.max(.04,Math.min(.96,leaf.attachment.arcPosition+placement.arcOffset)),base=at(axis,arc),side=leaf.attachment.side==="left"?-1:1,raw=norm(point(side*(.82+(leaf.sampledVariation?.angle??0)),-.42)),cos=Math.cos(placement.angleOffset),sin=Math.sin(placement.angleOffset),dir=point(raw.x*cos-raw.y*sin,raw.x*sin+raw.y*cos),length=leaf.length*520*placement.scale,width=leaf.width*500*Math.sqrt(placement.scale),tip=add(base,mul(dir,length)),normal=point(-dir.y,dir.x),shoulder=add(base,mul(dir,length*.42)),l=add(shoulder,mul(normal,width)),r=add(shoulder,mul(normal,-width)),curl=(leaf.sampledVariation?.contour??0)*70;
+ const commands:PathCommand[]=[{op:"M",p:base},{op:"C",c1:add(base,mul(normal,width*.22)),c2:add(l,mul(dir,length*.12)),p:l},{op:"C",c1:add(l,mul(dir,length*.24)),c2:add(tip,point(-dir.x*length*.18+normal.x*curl,-dir.y*length*.18+normal.y*curl)),p:tip},{op:"C",c1:add(tip,point(-dir.x*length*.2-normal.x*curl,-dir.y*length*.2-normal.y*curl)),c2:add(r,mul(dir,length*.2)),p:r},{op:"C",c1:add(r,mul(dir,-length*.2)),c2:add(base,mul(normal,-width*.22)),p:base},{op:"Z"}];
+ const primitives:GeometryPrimitive[]=[{kind:"closed-path",id:`${leaf.id}-contour`,featureId:leaf.id,role:"leaf",commands},{kind:"open-path",id:`${leaf.id}-midrib`,featureId:leaf.id,role:"leaf-vein",commands:[{op:"M",p:base},{op:"C",c1:add(base,mul(dir,length*.33)),c2:add(tip,mul(dir,-length*.33)),p:tip}]}];
+ for(let i=1;i<=leaf.vein.secondaryPairs;i++){const t=i/(leaf.vein.secondaryPairs+1),m=add(base,mul(point(tip.x-base.x,tip.y-base.y),t)),veinSide=i%2?1:-1,end=add(m,add(mul(normal,veinSide*width*(1-t)*.72),mul(dir,length*.08)));primitives.push({kind:"open-path",id:`${leaf.id}-vein-${i}`,featureId:leaf.id,role:"leaf-vein",commands:[{op:"M",p:m},{op:"C",c1:add(m,mul(dir,length*.04)),c2:add(end,mul(normal,-veinSide*width*.1)),p:end}]});}
+ return{primitives,bounds:boundsOf(commands)};
+}
