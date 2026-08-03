@@ -30,6 +30,17 @@ test("authoritative SVG v2 pipeline is deterministic, accessible, traceable and 
   const index=JSON.parse(doc.getElementById("anthesis-feature-provenance")!.textContent!);
   const groups=Array.from(doc.getElementsByTagName("g")).filter(g=>g.hasAttribute("data-feature-id")); assert.ok(groups.length>20);
   for(const group of groups){const id=group.getAttribute("data-feature-id")!; assert.ok(index[id].derivation); assert.ok(index[id].sourceRefs.length||index[id].metricRefs.length); assert.equal(group.getAttribute("tabindex"),"0");}
+  const source=a.svg;
+  const roots=source.indexOf('data-geometry-layer="roots"'), stems=source.indexOf('data-geometry-layer="stems"'), foliage=source.indexOf('data-geometry-layer="foliage"'), flowers=source.indexOf('data-geometry-layer="flowers"');
+  assert.ok(roots<stems&&stems<foliage&&foliage<flowers,"geometry z-index order must be authoritative");
+  for(const flower of a.plant.plant.flowers){
+    const group=doc.getElementById(`feature-${flower.id}`)!, markup=group.toString();
+    assert.ok(markup.indexOf('data-paint-role="sepal"')<markup.indexOf('data-paint-role="petal-'));
+    assert.ok(markup.lastIndexOf('data-paint-role="petal-')<markup.indexOf('data-paint-role="receptacle"'));
+    assert.ok(markup.indexOf('data-paint-role="receptacle"')<markup.indexOf('data-paint-role="floret"'));
+    const mark=doc.getElementById(`${flower.id}-florets-mark-0`)!, rotation=Number(mark.getAttribute("transform")!.match(/^rotate\(([-\d.]+)/)![1]), expected=flower.florets[0].angle*180/Math.PI;
+    assert.ok(Math.abs(rotation-expected)<.0001,"floret radians must serialize as SVG degrees");
+  }
   const geometry=JSON.parse(a.geometry); assert.ok(geometry.composition.componentScores.collision<=COARSE_ACCEPTANCE_V1.collisionScoreMax); assert.ok(geometry.composition.componentScores.congestion<=COARSE_ACCEPTANCE_V1.congestionScoreMax); assert.ok(geometry.composition.componentScores.crossings<=COARSE_ACCEPTANCE_V1.crossingScoreMax);
   assert.ok(a.svg.includes('width="210mm" height="297mm"')); assert.ok(!a.svg.includes("NaN")&&!a.svg.includes("Infinity")); assert.ok((await readFile(join(dir,"contact.svg"),"utf8")).includes("Top four deterministic composition candidates")); assert.equal(a.plant.source.snapshotSha,provenance.snapshotSha);
 });
