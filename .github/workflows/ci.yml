@@ -50,7 +50,12 @@ jobs:
         run: npm run smoke:viewer:disabled
       - name: Build and execute enabled production viewer
         run: npm run smoke:viewer:enabled
+      - name: Generate all five fixture portrait review artifacts
+        run: npm run generate:review-artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: tested-anthesis-viewer
-          path: dist-viewer/
+          path: |
+            dist-viewer/
+            artifacts/fixture-portraits/portraits/
+            artifacts/real-anthesis/

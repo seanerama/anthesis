@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title description" data-anthesis-contract="svg-provenance-v1">
+  <title id="title">Anthesis repository portrait</title>
+  <description id="description">A main stem and tagged flower derived from Git history</description>
+  <metadata id="anthesis-provenance">{&quot;analysisMode&quot;:&quot;git-only&quot;,&quot;botanicalSceneSha256&quot;:&quot;b6108758800928602a9ccb5a2dd3e9e926cd0182f9fd79780854e261851168c8&quot;,&quot;canonicalModelSha256&quot;:&quot;9550fe1546500d49e183d057fdb44ff2fa77b774c5cb76d6348ad687b66809b2&quot;,&quot;configurationHash&quot;:&quot;7fc1ceacc7a8283e8da37debdd1a26a0a40e07f97b23a37d835b64dd22e139c9&quot;,&quot;grammarVersion&quot;:&quot;stage-0-v1&quot;,&quot;periodEnd&quot;:&quot;2024-02-01T00:00:00.000Z&quot;,&quot;periodStart&quot;:&quot;2024-01-01T00:00:00.000Z&quot;,&quot;project&quot;:&quot;Anthesis&quot;,&quot;rendererVersion&quot;:&quot;stage-0-v1&quot;,&quot;repository&quot;:&quot;fixtures/steady-growth&quot;,&quot;scalingMode&quot;:&quot;repository-relative&quot;,&quot;schemaVersion&quot;:1,&quot;seed&quot;:&quot;3bcc6da78a0dcf60a0261e7c76411bf7f4f5852e4504facf613659de8bc622eb&quot;,&quot;snapshotSha&quot;:&quot;e9596c6f882ab7648d996a64097d0e8721f724b8&quot;,&quot;style&quot;:&quot;herbarium&quot;}</metadata>
+  <rect width="800" height="1000" fill="#f8f3e7"/>
+  <path id="main-stem" d="M 400 880 C 350 680 450 440 400 220" fill="none" stroke="#315b3a" stroke-width="24" stroke-linecap="round"/>
+  <g id="flower-1" data-source-kind="tag" data-source-ref="v1"><circle cx="400" cy="270" r="55" fill="#d45b78"/><circle cx="400" cy="270" r="18" fill="#f2c14e"/><title>Tag v1</title></g>
+</svg>

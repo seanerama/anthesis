@@ -6,7 +6,7 @@ import { z } from "zod";
 import { sha256, canonicalJson } from "../shared/canonical-json.js";
 import type { CanonicalRepositoryV1 } from "../canonical/model.js";
 const exec = promisify(execFile);
-const configSchema=z.object({features:z.object({fullAnalysis:z.boolean().default(false)}).default({fullAnalysis:false}),exclude:z.object({paths:z.array(z.string()).default([]),files:z.array(z.string()).default([]),patterns:z.array(z.string()).default([])}).default({paths:[],files:[],patterns:[]}),contributorAliases:z.record(z.string()).default({}),repositoryIdentity:z.string().min(1).optional()}).strict();
+const configSchema=z.object({features:z.object({fullAnalysis:z.boolean().default(false),mvpGrammar:z.boolean().default(false)}).default({fullAnalysis:false,mvpGrammar:false}),exclude:z.object({paths:z.array(z.string()).default([]),files:z.array(z.string()).default([]),patterns:z.array(z.string()).default([])}).default({paths:[],files:[],patterns:[]}),contributorAliases:z.record(z.string()).default({}),repositoryIdentity:z.string().min(1).optional()}).strict();
 export type AnalysisConfig=z.input<typeof configSchema>; type Config=z.output<typeof configSchema>;
 async function git(repo:string,args:string[],allowFailure=false):Promise<string>{try{return(await exec("git",["-C",repo,...args],{encoding:"utf8",maxBuffer:64*1024*1024})).stdout.trim();}catch(error){if(allowFailure)return"";throw new Error(`Git command failed for ${repo}: ${error instanceof Error?error.message.split("\n")[0]:String(error)}`);}}
 const iso=(seconds:string):string=>new Date(Number(seconds)*1000).toISOString();
